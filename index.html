@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Viewing RRD</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js"></script>
+        <script>
+
+var current_timestamp = function() {
+    return Math.floor(Date.now() / 1000);
+};
+
+var app = angular.module('GraphModule', []);
+
+app.controller('GraphController', function ($scope) {
+    $scope.color = '#00FF00';
+    $scope.interval = 3600;
+
+    $scope.inc_interval = function () {
+        $scope.interval = $scope.interval * 2;
+    };
+    $scope.dec_interval = function () {
+        $scope.interval = $scope.interval / 2;
+    };
+
+    $scope.end = current_timestamp();
+
+    $scope.shl_end = function () {
+        $scope.end -= $scope.interval / 6;
+    };
+    $scope.shr_end = function () {
+        $scope.end += $scope.interval / 6;
+    };
+
+    $scope.ISO8601 = function (timestamp) {
+        return new Date(timestamp * 1000).toISOString();
+    }
+
+    $scope.get_params = function() {
+        return encodeURIComponent(JSON.stringify({
+            color: $scope.color,
+            end: $scope.end,
+            interval: $scope.interval,
+        }));
+    };
+});
+        </script>
+    </head>
+<body ng-app="GraphModule">
+    <div ng-controller="GraphController">
+        <img ng-src="graph.png?params={{get_params()}}" />
+        <hr />
+        <p>Color: <input ng-model="color"/></p>
+        <p>End time:
+            <button ng-click="shl_end()">&lt;</button>
+            <input type="number" ng-model="end"/>
+            <button ng-click="shr_end()">&gt;</button>
+            ({{ISO8601(end)}})
+        </p>
+        <p>Time interval:
+            <button ng-click="dec_interval()">-</button>
+            <input type="number" ng-model="interval"/>
+            <button ng-click="inc_interval()">+</button>
+        </p>
+    </div>
+</body>
+</html>
